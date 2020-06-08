@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/UI/Login/loginscreen.dart';
 import 'UI/Intray/intray_page.dart';
 import 'models/global.dart';
 
@@ -15,7 +16,24 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'TODO App'),
+      home: FutureBuilder(
+        //future: _calculation,
+        builder: (BuildContext content, AsyncSnapshot<String> snapshots) {
+          switch (snapshots.connectionState) {
+            case ConnectionState.none:
+              return Text("Press Button to start");
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Text("Awaiting Result...");
+            case ConnectionState.done:
+              if (snapshots.hasError) {
+                return Text('Error: ${snapshots.error}');
+              }
+              return Text('Result: ${snapshots.data}');
+          }
+          return null; //unreachable data
+        },
+      ),
     );
   }
 }
@@ -42,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 TabBarView(
                   children: [
-                   IntrayPage(),
+                    IntrayPage(),
                     new Container(
                       color: Colors.orange,
                     ),
@@ -73,9 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 130.0, left: MediaQuery.of(context).size.width*0.4),
+                  margin: EdgeInsets.only(
+                      top: 130.0,
+                      left: MediaQuery.of(context).size.width * 0.4),
                   child: FloatingActionButton(
-                    child: Icon(Icons.add,size: 40.0,),
+                    child: Icon(
+                      Icons.add,
+                      size: 40.0,
+                    ),
                     backgroundColor: redColor,
                     onPressed: () {},
                   ),
