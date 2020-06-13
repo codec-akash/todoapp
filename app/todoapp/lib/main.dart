@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/UI/Login/loginscreen.dart';
 import 'UI/Intray/intray_page.dart';
 import 'models/global.dart';
+import 'package:http/http.dart' as http;
+import 'package:todoapp/models/classes/user.dart';
+import 'package:todoapp/bloc/blocs/user_bloc_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,33 +20,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FutureBuilder(
-        //future: _calculation,
-        builder: (BuildContext content, AsyncSnapshot<String> snapshots) {
-          switch (snapshots.connectionState) {
-            case ConnectionState.none:
-              return Text("Press Button to start");
-            case ConnectionState.active:
-            case ConnectionState.waiting:
-              return Text("Awaiting Result...");
-            case ConnectionState.done:
-              if (snapshots.hasError) {
-                return Text('Error: ${snapshots.error}');
-              }
-              return Text('Result: ${snapshots.data}');
-          }
-          return null; //unreachable data
-        },
-      ),
+      home: MyHomePage(),
+      //
+      //         );
+      //       },
+      //     ); //unreachable data
+      //   },
+      // ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -50,6 +39,41 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    //bloc.registerUser("AkkuAk", "heroDK", "Akkuhero", "akkauheroDk@yahoo.in", "1234");
+    return FutureBuilder(
+      future: getApiKey(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        String apiKey = "";
+        if (snapshot.hasData) {
+          apiKey = snapshot.data;
+        } else {
+          print("NO API Token ");
+        }
+        // String apiKey = snapshot.data;
+        // apiKey.length > 0 ? getHomePage() :
+        return apiKey.length > 0 ? getHomePage() : LoginPage(login: login, newUser: false,);
+      },
+    );
+  }
+
+  void login(){
+    setState(() {
+      build(context);
+    });
+  }
+
+  void signupPressed(){
+    setState(() {
+      build(context);
+    });
+  }
+
+  Future getApiKey() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("API_TOKEN");
+  }
+
+  Widget getHomePage() {
     return MaterialApp(
       color: Colors.yellow,
       home: SafeArea(
@@ -66,6 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     new Container(
                       color: Colors.lightGreen,
+                      child: Center(
+                        child: FlatButton(
+                          color: redColor,
+                          child: Text("LOG_OUT"),
+                          onPressed: (){
+                            logout();    
+                          },
+                          ),
+                      ),
                     ),
                   ],
                 ),
@@ -105,28 +138,45 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            appBar: new TabBar(
-              tabs: [
-                Tab(
-                  icon: new Icon(Icons.home),
-                ),
-                Tab(
-                  icon: new Icon(Icons.rss_feed),
-                ),
-                Tab(
-                  icon: new Icon(Icons.perm_identity),
-                ),
-              ],
-              labelColor: darkGreyColor,
-              unselectedLabelColor: Colors.blue,
-              indicatorSize: TabBarIndicatorSize.label,
-              indicatorPadding: EdgeInsets.all(5.0),
-              indicatorColor: darkGreyColor,
+            appBar: AppBar(
+              elevation: 0,
+              title: new TabBar(
+                tabs: [
+                  Tab(
+                    icon: new Icon(Icons.home),
+                  ),
+                  Tab(
+                    icon: new Icon(Icons.rss_feed),
+                  ),
+                  Tab(
+                    icon: new Icon(Icons.perm_identity),
+                  ),
+                ],
+                labelColor: darkGreyColor,
+                unselectedLabelColor: Colors.blue,
+                indicatorSize: TabBarIndicatorSize.label,
+                indicatorPadding: EdgeInsets.all(5.0),
+                indicatorColor: darkGreyColor,
+              ),
+              backgroundColor: Colors.white,
             ),
             backgroundColor: Colors.white,
           ),
         ),
       ),
     );
+  }
+
+  logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("API_TOKEN", "");
+    setState(() {
+      build(context);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();  
   }
 }
