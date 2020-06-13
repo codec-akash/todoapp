@@ -22,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       backgroundColor: darkGreyColor,
       body: Center(
         child: widget.newUser ? getSignupPage() : getSigninPage(),
@@ -83,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                         fillColor: Colors.white,
                         hintText: 'Password',
                         contentPadding: const EdgeInsets.only(
-                            left: 14.0, bottom: 8.0, top: 8.0),
+                            left: 14.0, top: 8.0),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
                           borderRadius: BorderRadius.circular(25.7),
@@ -98,7 +99,8 @@ class _LoginPageState extends State<LoginPage> {
                   FlatButton(
                     onPressed: () {
                       if(usernameText.text != null || passwordText.text != null){
-                        bloc.signinUser(usernameText.text, passwordText.text).then((){
+                        bloc.signinUser(usernameText.text, passwordText.text).then((_){
+                          print("HEllO");
                           widget.login();
                         });
                       }
