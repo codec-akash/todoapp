@@ -1,39 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/bloc/blocs/user_bloc_provider.dart';
 import 'package:todoapp/models/classes/task.dart';
 import 'package:todoapp/models/global.dart';
 import 'package:todoapp/models/widget/intray_todo_widget.dart';
 
 class IntrayPage extends StatefulWidget {
+  final String apiKey;
+
+  const IntrayPage({Key key, this.apiKey}) : super(key: key);
+
   @override
   _IntrayPageState createState() => _IntrayPageState();
 }
 
 class _IntrayPageState extends State<IntrayPage> {
   List<Task> taskList = [];
+  TaskBloc tasksBloc;
+
+  @override
+  void initState() {
+    tasksBloc = TaskBloc(widget.apiKey);
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    taskList = getList();
     return Container(
-      color: darkGreyColor,
-      child: _buildReorderableListSimple(context),
-      // child: ReorderableListView(
-      //   padding: EdgeInsets.only(top: 300.0),
-      //   children: todoItems,
-      //   onReorder: _onReorder,
-      // ),
-    );
+        color: darkGreyColor,
+        child: StreamBuilder(
+          stream: tasksBloc.getTasks,
+          initialData: [],
+          builder: (context, snapshot) {
+            // taskList = snapshot.data;
+            print(snapshot.data.toString());
+            return _buildReorderableListSimple(context, taskList);
+          },
+        ),
+        // child: ReorderableListView(
+        //   padding: EdgeInsets.only(top: 300.0),
+        //   children: todoItems,
+        //   onReorder: _onReorder,
+        // ),
+        );
   }
 
   Widget _buildListTile(BuildContext context, Task item) {
     return ListTile(
-      key: Key(item.taskId),
+      key: Key(item.taskId.toString()),
       title: IntrayTodo(
         title: item.title,
       ),
     );
   }
 
-  Widget _buildReorderableListSimple(BuildContext context) {
+  Widget _buildReorderableListSimple(
+      BuildContext context, List<Task> taskList) {
     return Theme(
       data: ThemeData(
         canvasColor: Colors.transparent,
@@ -65,10 +91,8 @@ class _IntrayPageState extends State<IntrayPage> {
     });
   }
 
-  List<Task> getList() {
-    for (int i = 0; i < 10; i++) {
-      taskList.add(Task("My First Todo" + i.toString(), false, i.toString()));
-    }
-    return taskList;
-  }
+  // Future<List<Task>> getList() async {
+  //   List<Task> tasks = await tasksBloc.getUserTasks(widget.apiKey);
+  //   return tasks;
+  // }
 }

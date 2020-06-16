@@ -7,22 +7,38 @@ import string
 class signin(Resource):
 
     def post(self):
+        result = ""
         json_data = request.get_json(force=True)
+        header = request.headers["Authorization"]
+
+        if not header:
+            result = self.username_password_signin(json_data)
+
+        else:
+            print(header)
+            user = User.query.filter_by(api_key=header).first()
+
+            if user:
+                result = User.serialize(user)
+            else: 
+                result = self.username_password_signin(json_data)
+
+
+
+        return { "status": 'success', 'data': result }, 201
+
+    def username_password_signin(self,json_data):
         if not json_data:
-               return {'message': 'No input data provided'}, 400
+            return {'message': 'No input data provided'}, 400
 
-
-## checking duplications ... 
         user = User.query.filter_by(username=json_data['username']).first()
         if not user:
             return {'message': 'Username does not exists'}, 400
 
         if user.password != json_data['password']:
             return {'message': 'Password Incorrect'}, 400
-
-        result = User.serialize(user)
-
-        return { "status": 'success', 'data': result }, 201
-
+                
+        return User.serialize(user)
+    
     def generate_key(self):
         return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
