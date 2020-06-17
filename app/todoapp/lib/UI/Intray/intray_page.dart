@@ -23,30 +23,42 @@ class _IntrayPageState extends State<IntrayPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: darkGreyColor,
-        child: StreamBuilder(
-          stream: tasksBloc.getTasks,
-          initialData: [],
-          builder: (context, snapshot) {
-            taskList = snapshot.data;
-            print(snapshot.data.toString());
-            return _buildReorderableListSimple(context, taskList);
-          },
-        ),
-        // child: ReorderableListView(
-        //   padding: EdgeInsets.only(top: 300.0),
-        //   children: todoItems,
-        //   onReorder: _onReorder,
-        // ),
-        );
+      color: darkGreyColor,
+      child: StreamBuilder(
+        stream: tasksBloc.getTasks,
+        initialData: [],
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot != null) {
+            if (snapshot.data.length > 0) {
+              return _buildReorderableListSimple(context, snapshot.data);
+            } else if (snapshot.data.length == 0) {
+              return Center(
+                child: Text("No Data"),
+              );
+            }
+          } else if (snapshot.hasError) {
+            return Container(
+              child: Center(
+                child: Text("Has Error"),
+              ),
+            );
+          }
+          return CircularProgressIndicator();
+        },
+      ),
+      // child: ReorderableListView(
+      //   padding: EdgeInsets.only(top: 300.0),
+      //   children: todoItems,
+      //   onReorder: _onReorder,
+      // ),
+    );
   }
 
   Widget _buildListTile(BuildContext context, Task item) {
