@@ -36,7 +36,7 @@ class _IntrayPageState extends State<IntrayPage> {
           stream: tasksBloc.getTasks,
           initialData: [],
           builder: (context, snapshot) {
-            // taskList = snapshot.data;
+            taskList = snapshot.data;
             print(snapshot.data.toString());
             return _buildReorderableListSimple(context, taskList);
           },
